@@ -10,6 +10,8 @@ import Foundation
 
 enum GameboardError: Error {
     case outOfBounds
+    case invalidData
+    case spacesLessThanBombs
 }
 
 class Gameboard {

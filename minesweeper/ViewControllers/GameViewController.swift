@@ -17,29 +17,60 @@ enum GameState {
 class GameViewController: UIViewController {
 
     @IBOutlet weak var baseStackView: UIStackView!
+    var buttonTimer: Timer!
+    var wasLongPressed: Bool = false
     
-    let gameboard: Gameboard! = Gameboard(rows: 10, columns: 5, numberOfBombs: 2)
+    var passedGameboard: Gameboard? = nil
+    
+    var gameboard: Gameboard! = Gameboard(rows: 10, columns: 5, numberOfBombs: 4)
     
     var runningViewTagCount = 1
     
-    var gameState: GameState = .inProgress
+    var goodSpaces = 0
+    
+    var gameState: GameState = .inProgress {
+        didSet {
+            if gameState == .lose {
+                revealAll()
+                let alert = UIAlertController(title: "BOOOOOOOOM!!!", message: "You've lost. Come on, try again!", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                            self.navigationController?.popViewController(animated: true)
+                        }
+                    )
+                )
+                alert.addAction(UIAlertAction(title: "Review", style: .default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+            } else if gameState == .win {
+                revealAll()
+                let alert = UIAlertController(title: "Good Job!", message: "You've Won! Do you want to play again?", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                    self.navigationController?.popViewController(animated: true)
+                }
+                    )
+                )
+                self.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        gameboard.generateGameMatrix()
-        
-        for (columnIndex,row) in gameboard.spaceMatrix.enumerated() {
-            for (rowIndex,space) in row.enumerated() {
-                if space.hasBomb {
-                    print("bomb at position: \(columnIndex,rowIndex)")
-                }
-            }
+        guard let passedgameboard = self.passedGameboard else {
+            self.navigationController?.popViewController(animated: true)
+            return
         }
         
+        self.gameboard = passedgameboard
+        gameboard.generateGameMatrix()
+        self.goodSpaces = gameboard.columns * gameboard.rows - gameboard.numberOfBombs
         generateView()
         
+    }
+    deinit {
+        self.passedGameboard = nil
+        self.gameboard = Gameboard(rows: 10, columns: 5, numberOfBombs: 4)
     }
 
     override func didReceiveMemoryWarning() {
@@ -59,32 +90,19 @@ class GameViewController: UIViewController {
     */
     
     @objc func buttonTouched(sender: UIButton) {
-        print("tag: \(sender.tag)")
-        
-        let column = ((sender.tag % gameboard.columns) == 0 ? gameboard.columns:sender.tag % gameboard.columns) - 1
-
-//        let column = (sender.tag % gameboard.columns) == 0 ? ((sender.tag / gameboard.columns)-1):(sender.tag / gameboard.columns)
-        
-        let row = (sender.tag % gameboard.columns) == 0 ? ((sender.tag / gameboard.columns)-1):(sender.tag / gameboard.columns)
-        
-        print(column)
-        print(row)
-        
-        if !gameboard.spaceMatrix[column][row].hasBeenTouched {
-            gameboard.spaceMatrix[column][row].hasBeenTouched = true
-            
-            do {
-                let bombs = try gameboard.bombsNearCoordinate(column: column, row: row)
-                sender.setTitle("\(bombs)", for: .normal)
-            } catch {
-                
-            }
-            
-            if gameboard.spaceMatrix[column][row].hasBomb {
-                self.gameState = .lose
-                sender.setTitle("\u{1F4A3}", for: .normal)
-            }
+        self.buttonTimer.invalidate()
+        if !wasLongPressed {
+            self.buttonAction(sender: sender, wasLongPressed: false)
+        } else {
+            wasLongPressed = false
         }
+    }
+    
+    @objc func buttonTouchedDown(sender: UIButton) {
+        self.buttonTimer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: false, block: {_ in
+            self.wasLongPressed = true
+            self.buttonAction(sender: sender, wasLongPressed: true)
+        })
     }
 
     func generateView() {
@@ -108,10 +126,75 @@ class GameViewController: UIViewController {
         let button = UIButton(type: UIButtonType.system)
         button.setTitle("", for: .normal)
         button.addTarget(self, action: #selector(buttonTouched), for: .touchUpInside)
+        button.addTarget(self, action: #selector(buttonTouchedDown), for: .touchDown)
         button.tintColor = UIColor.black
         button.layer.borderColor = UIColor.black.cgColor
         button.layer.borderWidth = 1
         button.tag = tag
         return button
+    }
+    
+    func revealAll(){
+        for stackViews in self.baseStackView.subviews{
+            for view in stackViews.subviews {
+                if let button = view as? UIButton {
+                    let column = ((button.tag % gameboard.columns) == 0 ? gameboard.columns:button.tag % gameboard.columns) - 1
+                    
+                    let row = (button.tag % gameboard.columns) == 0 ? ((button.tag / gameboard.columns)-1):(button.tag / gameboard.columns)
+                    
+                    button.isUserInteractionEnabled = false
+                    
+                    if gameboard.spaceMatrix[column][row].hasBomb {
+                        if button.titleLabel?.text != "\u{2691}" {
+                            button.setTitle("\u{1F4A3}", for: .normal)
+                        }
+                    } else {
+                        do {
+                            if button.titleLabel?.text == "\u{2691}" {
+                                button.setTitle("X", for: .normal)
+                            } else {
+                                let bombs = try gameboard.bombsNearCoordinate(column: column, row: row)
+                                button.setTitle("\(bombs)", for: .normal)
+                            }
+                        } catch {
+                            
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func buttonAction(sender: UIButton, wasLongPressed: Bool) {
+        print("tag: \(sender.tag)")
+        
+        let column = ((sender.tag % gameboard.columns) == 0 ? gameboard.columns:sender.tag % gameboard.columns) - 1
+        
+        let row = (sender.tag % gameboard.columns) == 0 ? ((sender.tag / gameboard.columns)-1):(sender.tag / gameboard.columns)
+        
+        if !gameboard.spaceMatrix[column][row].hasBeenTouched {
+            if wasLongPressed {
+                sender.setTitle("\u{2691}", for: .normal)
+                return
+            }
+            gameboard.spaceMatrix[column][row].hasBeenTouched = true
+            
+            if gameboard.spaceMatrix[column][row].hasBomb {
+                self.gameState = .lose
+                sender.setTitle("\u{1F4A3}", for: .normal)
+                return
+            }
+            
+            do {
+                let bombs = try gameboard.bombsNearCoordinate(column: column, row: row)
+                sender.setTitle("\(bombs)", for: .normal)
+                self.goodSpaces -= 1
+                if self.goodSpaces < 1 {
+                    self.gameState = .win
+                }
+            } catch {
+                
+            }
+        }
     }
 }
