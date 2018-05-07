@@ -20,9 +20,7 @@ class GameViewController: UIViewController {
     var buttonTimer: Timer!
     var wasLongPressed: Bool = false
     
-    var passedGameboard: Gameboard? = nil
-    
-    var gameboard: Gameboard! = Gameboard(rows: 10, columns: 5, numberOfBombs: 4)
+    var gameboard: Gameboard!
     
     var runningViewTagCount = 1
     
@@ -57,20 +55,9 @@ class GameViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        guard let passedgameboard = self.passedGameboard else {
-            self.navigationController?.popViewController(animated: true)
-            return
-        }
-        
-        self.gameboard = passedgameboard
-        gameboard.generateGameMatrix()
         self.goodSpaces = gameboard.columns * gameboard.rows - gameboard.numberOfBombs
         generateView()
         
-    }
-    deinit {
-        self.passedGameboard = nil
-        self.gameboard = Gameboard(rows: 10, columns: 5, numberOfBombs: 4)
     }
 
     override func didReceiveMemoryWarning() {

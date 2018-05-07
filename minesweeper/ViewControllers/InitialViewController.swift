@@ -10,7 +10,7 @@ import UIKit
 
 class InitialViewController: UIViewController {
     
-    var gameboard: Gameboard? = nil
+    var gameboard: Gameboard!
     
     @IBOutlet weak var ColumnsTextField: UITextField!
     @IBOutlet weak var RowsTextField: UITextField!
@@ -19,11 +19,9 @@ class InitialViewController: UIViewController {
     @IBAction func GenerateMinefieldButtonAction(_ sender: UIButton) {
         
         do {
-            if let thisgameboard = try validateUserInput() {
-                self.gameboard = thisgameboard
-                self.performSegue(withIdentifier: "ToGameView", sender: self)
-            }
-            
+            let thisgameboard = try validateUserInput()
+            self.gameboard = thisgameboard
+            self.performSegue(withIdentifier: "ToGameView", sender: self)
         } catch let error{
             let alert = UIAlertController(title: "", message: "", preferredStyle: UIAlertControllerStyle.alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
@@ -66,17 +64,21 @@ class InitialViewController: UIViewController {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
         if let destVC = segue.destination as? GameViewController {
-            destVC.passedGameboard = self.gameboard
+            destVC.gameboard = self.gameboard
         }
     }
 
-    func validateUserInput() throws -> Gameboard? {
+    func validateUserInput() throws -> Gameboard {
         guard let columnsText: String = ColumnsTextField.text, let rowsText: String = RowsTextField.text, let bombsText: String = BombsTextField.text, !columnsText.isEmpty && !rowsText.isEmpty && !bombsText.isEmpty else {
             throw UserEntryError.emptyStrings
         }
         
         if let columns = Int(columnsText), let rows = Int(rowsText), let bombs = Int(bombsText), columns > 0 && rows > 0 && bombs > 0, rows * columns > bombs {
-            return Gameboard(rows: rows, columns: columns, numberOfBombs: bombs)
+            if let gameboard = GameboardGenerator.generateGameboard(rows: rows, columns: columns, numberOfBombs: bombs) {
+                return gameboard
+            } else {
+                throw UserEntryError.invalidIntegers
+            }
         } else {
             throw UserEntryError.invalidIntegers
         }

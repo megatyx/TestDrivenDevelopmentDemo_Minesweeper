@@ -37,7 +37,7 @@ class minesweeperTests: XCTestCase {
     
     func testTooManyBombs() {
         
-        XCTAssertNil(Gameboard(rows: 1, columns: 1, numberOfBombs: 10))
+        XCTAssertNil(GameboardGenerator.generateGameboard(rows: 1, columns: 1, numberOfBombs: 10))
     }
     
     func testSpaceInit() {
@@ -47,7 +47,7 @@ class minesweeperTests: XCTestCase {
         XCTAssertFalse(touchableSpace.hasBomb)
     }
     
-    func testGameboardInit() {
+    func testGameboardGeneration() {
         let rows = 3
         let columns = 3
         let bombs = 7
@@ -58,54 +58,35 @@ class minesweeperTests: XCTestCase {
                     if rowsIndex > 0 && columnsIndex > 0 && bombIndex > 0 {
                         let spaces = rowsIndex * columnsIndex
                         if spaces > bombIndex {
-                            if let gameboard = Gameboard(rows: rowsIndex, columns: columnsIndex, numberOfBombs: bombIndex) {
+                            if let gameboard = GameboardGenerator.generateGameboard(rows: rowsIndex, columns: columnsIndex, numberOfBombs: bombIndex) {
                                 XCTAssertEqual(gameboard.numberOfBombs, bombIndex)
                                 XCTAssertEqual(gameboard.rows, rowsIndex)
                                 XCTAssertEqual(gameboard.columns, columnsIndex)
+                                XCTAssert(gameboard.spaceMatrix.count > 0)
+                                if gameboard.spaceMatrix.count > 0 {
+                                    XCTAssert(gameboard.spaceMatrix[0].count > 0)
+                                    XCTAssert((gameboard.spaceMatrix.count * gameboard.spaceMatrix[0].count) == (rowsIndex * columnsIndex))
+                                    
+                                    var bombCount = 0
+                                    for thisRow in gameboard.spaceMatrix {
+                                        for thisSpace in thisRow {
+                                            
+                                            if thisSpace.hasBomb{
+                                                bombCount += 1
+                                            }
+                                        }
+                                    }
+                                    XCTAssertEqual(bombCount, bombIndex)
+                                    
+                                } else {XCTFail("empty column matrix")}
                             } else {
                                 XCTFail()
                             }
                         } else {
-                            XCTAssertNil(Gameboard(rows: rowsIndex, columns: columnsIndex, numberOfBombs: bombIndex))
+                            XCTAssertNil(GameboardGenerator.generateGameboard(rows: rowsIndex, columns: columnsIndex, numberOfBombs: bombIndex))
                         }
                     } else {
-                        XCTAssertNil(Gameboard(rows: rowsIndex, columns: columnsIndex, numberOfBombs: bombIndex))
-                    }
-                }
-            }
-        }
-    }
-    
-    func testGameboardGeneration() {
-        let rows = 4
-        let columns = 4
-        let bombs = 4
-        
-        for columnsIndex in 0..<columns {
-            for rowsIndex in 0..<rows {
-                for bombIndex in 0..<bombs {
-                    if rowsIndex > 0 && columnsIndex > 0 && bombIndex > 0 {
-                        let spaces = rowsIndex * columnsIndex
-                        if spaces > bombIndex {
-                            if let gameboard = Gameboard(rows: rowsIndex, columns: columnsIndex, numberOfBombs: bombIndex) {
-                                gameboard.generateGameMatrix()
-                                let totalSpaces = gameboard.spaceMatrix.count * gameboard.spaceMatrix[0].count
-                                XCTAssertEqual(gameboard.spaceMatrix.count, columnsIndex)
-                                XCTAssertEqual(gameboard.spaceMatrix[0].count, rowsIndex)
-                                XCTAssertEqual(totalSpaces, columnsIndex * rowsIndex)
-                                
-                                var bombCount = 0
-                                for row in gameboard.spaceMatrix {
-                                    for space in row {
-
-                                        if space.hasBomb{
-                                            bombCount += 1
-                                        }
-                                    }
-                                }
-                                XCTAssertEqual(bombCount, bombIndex)
-                            }
-                        }
+                        XCTAssertNil(GameboardGenerator.generateGameboard(rows: rowsIndex, columns: columnsIndex, numberOfBombs: bombIndex))
                     }
                 }
             }
@@ -116,9 +97,7 @@ class minesweeperTests: XCTestCase {
         let rows = 3
         let columns = 2
         let bombs = 1
-        
-        if let gameboard = Gameboard(rows: rows, columns: columns, numberOfBombs: bombs) {
-            gameboard.generateGameMatrix()
+        if let gameboard = GameboardGenerator.generateGameboard(rows: rows, columns: columns, numberOfBombs: bombs) {
             
             let touchPoint = self.touchPointRandomInBounds(columnMax: columns, rowMax: rows)
             gameboard.spaceMatrix[touchPoint.0][touchPoint.1].hasBeenTouched = true
@@ -157,8 +136,7 @@ class minesweeperTests: XCTestCase {
         
         print("bombCount: \(randomBombCount)")
         
-        if let gameboard = Gameboard(rows: randomRowCount, columns: randomColumnCount, numberOfBombs: randomBombCount) {
-            gameboard.generateGameMatrix()
+        if let gameboard = GameboardGenerator.generateGameboard(rows: randomRowCount, columns: randomColumnCount, numberOfBombs: randomBombCount) {
             
             var goodSpaceCount = spaceCount - gameboard.numberOfBombs
             print("goodSpaces: \(goodSpaceCount)")
@@ -192,8 +170,7 @@ class minesweeperTests: XCTestCase {
         let columns = 3
         let bombs = 1
         
-        if let gameboard = Gameboard(rows: rows, columns: columns, numberOfBombs: bombs) {
-            gameboard.generateGameMatrix()
+        if let gameboard = GameboardGenerator.generateGameboard(rows: rows, columns: columns, numberOfBombs: bombs) {
             
             for row in gameboard.spaceMatrix {
                 for space in row {

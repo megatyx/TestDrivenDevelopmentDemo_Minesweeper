@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		018D81302099AC5100839063 /* InitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018D812F2099AC5100839063 /* InitialViewController.swift */; };
 		018D81312099AC5500839063 /* InitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018D812F2099AC5100839063 /* InitialViewController.swift */; };
+		0191591020A01ECC0018DDBD /* GameboardGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0191590F20A01ECC0018DDBD /* GameboardGenerator.swift */; };
+		0191591120A051990018DDBD /* GameboardGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0191590F20A01ECC0018DDBD /* GameboardGenerator.swift */; };
 		01FEBB82208C709C003A6D84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FEBB81208C709C003A6D84 /* AppDelegate.swift */; };
 		01FEBB87208C709C003A6D84 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01FEBB85208C709C003A6D84 /* Main.storyboard */; };
 		01FEBB8A208C709C003A6D84 /* minesweeper.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 01FEBB88208C709C003A6D84 /* minesweeper.xcdatamodeld */; };
@@ -35,6 +37,7 @@
 
 /* Begin PBXFileReference section */
 		018D812F2099AC5100839063 /* InitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
+		0191590F20A01ECC0018DDBD /* GameboardGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameboardGenerator.swift; sourceTree = "<group>"; };
 		01FEBB7E208C709C003A6D84 /* minesweeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = minesweeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01FEBB81208C709C003A6D84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		01FEBB86208C709C003A6D84 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -135,6 +138,7 @@
 			children = (
 				01FEBBBC208C713E003A6D84 /* Space.swift */,
 				01FEBBC0208C7303003A6D84 /* Gameboard.swift */,
+				0191590F20A01ECC0018DDBD /* GameboardGenerator.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -254,6 +258,7 @@
 				01FEBBC1208C7303003A6D84 /* Gameboard.swift in Sources */,
 				018D81302099AC5100839063 /* InitialViewController.swift in Sources */,
 				01FEBBBD208C713E003A6D84 /* Space.swift in Sources */,
+				0191591020A01ECC0018DDBD /* GameboardGenerator.swift in Sources */,
 				01FEBB8A208C709C003A6D84 /* minesweeper.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -266,6 +271,7 @@
 				01FEBBC2208C7303003A6D84 /* Gameboard.swift in Sources */,
 				01FEBBBA208C7113003A6D84 /* GameViewController.swift in Sources */,
 				01FEBB9A208C709E003A6D84 /* minesweeperTests.swift in Sources */,
+				0191591120A051990018DDBD /* GameboardGenerator.swift in Sources */,
 				01FEBBBE208C713E003A6D84 /* Space.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
